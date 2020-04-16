@@ -1,0 +1,129 @@
+2. django와 django-rest-framework 설치
+
+가상환경에 진입해 pip로 django와 django-rest-framework를 설치한다.
+
+pip install django
+pip install djangorestframework
+3. project 생성
+
+movie_api이라는 django project를 생성한다.
+
+django-admin startproject movie_api
+4. movies app 생성
+
+movies 앱을 생성한다.
+
+python manage.py startapp movies
+5. settings.py 설정
+
+settings.py에서 DRF와 만든 movies앱을 등록해준다.
+
+또한 ALLOWD_HOSTS도 설정해주자. develop 용으로 모두 허용해준다.(배포할 땐 허용 가능 호스트를 설정해준다.)
+
+# settings.py
+
+ALLOWED_HOSTS = ['*']
+
+INSTALLED_APPS = [
+    ...
+    'rest_framework',
+    'movies.apps.MoviesConfig',
+]
+6. Model 생성
+
+Movie 모델을 생성한다. 간단하게 영화 제목,장르,제작 년도의 필드를 갖는다.
+
+# movie_api/movies/models.py
+
+from django.db import models
+
+class Movie(models.Model):
+    title = models.CharField(max_length=30) # 제목
+    genre = models.CharField(max_length=15) # 장르
+    year = models.IntegerField() # 제작 년도
+
+    def __str__(self):
+        return self.title
+코드 작성 후 마이그레이션,마이그레이트를 해준다.
+
+python manage.py makemigrations
+python manage.py migrate
+
+
+7. serializer 생성
+
+Serializer란 queryset과 모델 인스턴스와 같은 복잡한 데이터를 json,xml 또는 다른 콘텐츠 유형으로 쉽게 변환할 수 있다. 받은 데이터의 유효성을 검사한 다음, 복잡한 타입으로 형 변환할 수 있도록 serializeation을 제공한다. 
+
+# movie_api/movies/serializers.py
+
+from rest_framework import serializers
+from .models import Movie
+
+class MovieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movie # 모델 설정
+        fields = ('id','title','genre','year') # 필드 설정
+8. views.py 작성
+
+DRF는 보통 사람들이 자주 사용하는 공통적인 view 로직을 그룹화 한 viewset을 제공한다. viewset을 사용하게 되면 CRUD 로직을 직접 짜지 않아도 이 기능들이 사용 가능해진다. 필자는 처음에 '읭 아무것도 안했는데 다 되네...? ㅇ0ㅇ' 했다.
+
+# movie_api/movies/views.py
+
+from rest_framework import viewsets
+from .serializers import MovieSerializer
+from .models import Movie
+
+class MovieViewSet(viewsets.ModelViewSet):
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+
+9. urls.py 작성
+
+DRF는 url을 자동으로 맵핑해주는 router를 제공한다. 앞서 생성한 viewset을 router에 연결하게 되면 자동으로 url을 맵핑해주어 사용자가 직접 url을 맵핑하지 않아도 된다.
+
+# movie_api/urls.py
+
+from django.conf.urls import url,include
+from django.contrib import admin
+from rest_framework import routers
+from movies.views import MovieViewSet
+
+router = routers.DefaultRouter() 
+router.register('movies',MovieViewSet) # prefix = movies , viewset = MovieViewSet
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^',include(router.urls)),
+]
+위에서 router.register로  prefix를 'movies'로 설정을 해주었다. 
+
+router는 이를 바탕으로 url을 맵핑하게 된다.
+
+URL pattern: ^movies/$ Name: 'movie-list'
+URL pattern: ^movies/{pk}/$ Name: 'movie-detail'
+10. 실행
+
+자 이제 코드 작성은 끝이 났다! 런서버로 실행해본다. 
+
+python manage.py runserver 
+11. 완성! 검토!
+
+만든 api로 CRUD 요청을 해보자.
+
+api 요청 uri과 method를 정리해보자면 
+
+GET /movies/ 영화 리스트 조회
+
+POST /movies/ 영화 객체 추가
+
+GET /movies/{pk}/ 영화 객체 조회.(한개)
+
+PUT /movies/{pk} 영화 객체 수정
+
+DELETE /movies/{pk} 영화 객체 삭제
+
+이렇게 된다.
+
+
+
+먼저 localhost:8000
