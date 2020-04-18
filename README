@@ -127,3 +127,21 @@ DELETE /movies/{pk} 영화 객체 삭제
 
 
 먼저 localhost:8000
+
+git 사용
+  31 git init
+36 git add .
+  37 git status
+  38 ls
+  39 pwd
+  40 ls
+  41 git status
+  42 ls
+  43 git rm -r --cached .
+  44 git add .
+  45 git status
+  46 git commit -m "장고 rest API example"
+  47 git config --global user.email "thbusae@gmail.com"
+  48 git commit -m "장고 rest API example"
+  49 git remote add origin https://github.com/fairguy00/django_restApi.git
+  50 git push origin master
