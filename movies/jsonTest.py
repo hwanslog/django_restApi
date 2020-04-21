@@ -3,7 +3,7 @@ import json
 # 테스트용 Python Dictionary
 customer = {
     'id': 152352,
-    'name': '강진수',
+    'name': '이태환',
     'history': [
         {'date': '2015-03-11', 'item': 'iPhone'},
         {'date': '2016-02-23', 'item': 'Monitor'},
